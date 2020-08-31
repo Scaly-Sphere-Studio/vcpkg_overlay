@@ -2,7 +2,7 @@
 
 $token = $env:SSS_READ_TOKEN;
 $base_dir = Get-Location;
-$dl_dir = "$base_dir\crazy";
+$dl_dir = "$base_dir\downloads";
 $ports_dir = "$base_dir\ports";
 
 # Create directories if needed
