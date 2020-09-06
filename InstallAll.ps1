@@ -1,4 +1,4 @@
-. .\DownloadAsset.ps1
+. .\Functions.ps1
 
 $token = $env:SSS_READ_TOKEN;
 $base_dir = Get-Location;

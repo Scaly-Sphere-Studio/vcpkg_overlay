@@ -67,3 +67,57 @@ function Download-Asset
         Write-Output "$local_file successfully downloaded.";
     }
 }
+
+function Pkg-Triplets {
+    param(
+        [Parameter()] [string] $pkgname
+    );
+
+    $pkgs = @(
+        "$($pkgname):x86-windows",
+        "$($pkgname):x64-windows"
+    );
+
+    return $pkgs;
+}
+
+function Pkg-List {
+    param(
+        [Parameter()] [string] $pkgname
+    );
+    $ErrorActionPreference = "Stop";
+
+    $listed = @();
+    Pkg-Triplets $pkgname | foreach {
+        if (vcpkg list $_) {
+            $listed += $_;
+        }
+    };
+
+    return $listed;
+}
+
+function Pkg-Remove {
+    param(
+        [Parameter()] [string] $pkgname
+    );
+    $ErrorActionPreference = "Stop";
+
+    $listed = Pkg-List $pkgname;
+    if ($listed) {
+        vcpkg remove $listed;
+    }
+}
+
+function Pkg-Install {
+    param(
+        [Parameter()] [string] $pkgname
+    );
+    $ErrorActionPreference = "Stop";
+    
+    # Remove old installs
+    Pkg-Remove $pkgname;
+
+    # Install freshly
+    vcpkg install $(Pkg-Triplets $pkgname);
+}
