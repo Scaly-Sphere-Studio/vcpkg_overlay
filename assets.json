@@ -1,16 +1,23 @@
 [
     {
         "owner": "Scaly-Sphere-Studio",
-        "repo": "debug",
-        "tag": "v0.1.0",
-        "filename": "sss-debug.zip",
-        "pkgname": "sss-debug"
-    },    
+        "repo": "log",
+        "tag": "0.1.0",
+        "filename": "sss-log.zip",
+        "pkgname": "sss-log"
+    },
     {
         "owner": "Scaly-Sphere-Studio",
         "repo": "color",
-        "tag": "v0.1.0",
+        "tag": "0.1.0",
         "filename": "sss-color.zip",
         "pkgname": "sss-color"
+    },
+    {
+        "owner": "Scaly-Sphere-Studio",
+        "repo": "SDL",
+        "tag": "0.1.0",
+        "filename": "sss-sdl.zip",
+        "pkgname": "sss-sdl"
     }
 ]
