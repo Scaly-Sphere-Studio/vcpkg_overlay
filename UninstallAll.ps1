@@ -1,16 +1,27 @@
-# Get assets info from JSON
-$assets = Get-Content -Path assets.json | ConvertFrom-Json;
+$ErrorActionPreference = "Stop";
 
-# Download and unzip all assets
+# Source functions & variables
+. $PSScriptRoot\Functions.ps1;
+
+# List all packages in the ports directory
+Write-Output "Retrieving packages to uninstall...";
 $to_remove = @();
-foreach ($_ in $assets) {
-    $pkgs = @(
-        "$($_.pkgname):x86-windows",
-        "$($_.pkgname):x64-windows"
-    );
-    $to_remove += $pkgs;
+Get-ChildItem -Name $ports_dir | %{
+    $installed = Pkg-List $_;
+    $installed;
+    $to_remove += $installed;
 }
 
+if (!$to_remove) {
+    Write-Warning "Nothing to uninstall.";
+    return;
+}
+
+# Uninstall all packages installed from the ports directory
 if ($to_remove) {
     vcpkg remove $to_remove;
 }
+
+# Remove the downloads & ports directory
+Remove-Item -Recurse -Force $dl_dir;
+Remove-Item -Recurse -Force $ports_dir;

@@ -1,3 +1,13 @@
+. $PSScriptRoot\Variables.ps1;
+
+# Create directories if needed
+if (!(Test-Path $dl_dir)) {
+    New-Item -Path $dl_dir -ItemType directory | Out-Null
+}
+if (!(Test-Path $ports_dir)) {
+    New-Item -Path $ports_dir -ItemType directory | Out-Null
+}
+
 function Download-Asset
 {
     param(
@@ -85,7 +95,6 @@ function Pkg-List {
     param(
         [Parameter()] [string] $pkgname
     );
-    $ErrorActionPreference = "Stop";
 
     $listed = @();
     Pkg-Triplets $pkgname | foreach {
@@ -101,7 +110,6 @@ function Pkg-Remove {
     param(
         [Parameter()] [string] $pkgname
     );
-    $ErrorActionPreference = "Stop";
 
     $listed = Pkg-List $pkgname;
     if ($listed) {
@@ -113,11 +121,32 @@ function Pkg-Install {
     param(
         [Parameter()] [string] $pkgname
     );
-    $ErrorActionPreference = "Stop";
-    
-    # Remove old installs
-    Pkg-Remove $pkgname;
 
-    # Install freshly
-    vcpkg install $(Pkg-Triplets $pkgname);
+    $pkg = $(Pkg-Triplets $pkgname);
+
+    $listed = Pkg-List $pkgname;
+    $not_listed = Compare-Object -ReferenceObject "$pkg" -DifferenceObject "$listed" -PassThru;
+    # Upgrade old installed versions
+    if ($listed) {
+        vcpkg upgrade --no-dry-run $listed;
+    }
+    # Install non installed versions
+    if ($not_listed) {
+        vcpkg install $not_listed.Split(" ");
+    }
+
+    # Log output
+    $installed = Pkg-List $pkgname;
+    $not_installed = Compare-Object -ReferenceObject "$pkg" -DifferenceObject "$installed" -PassThru;
+    if (!($not_installed)) {
+        Write-Output "'$pkgname' successfully installed.`n";
+    }
+    else {
+        if ($installed) {
+            Write-Error "'$pkgname' could only be partially installed.`n";
+        }
+        else {
+            Write-Error "'$pkgname' could not be installed.`n";
+        }
+    }
 }
