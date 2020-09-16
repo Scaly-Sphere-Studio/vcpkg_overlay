@@ -15,17 +15,17 @@
     },
     {
         "owner": "Scaly-Sphere-Studio",
-        "repo": "Fps",
-        "tag": "0.1.0",
-        "filename": "sss-fps.zip",
-        "pkgname": "sss-fps"
+        "repo": "Text-Rendering",
+        "tag": "0.2.0",
+        "filename": "sss-text-rendering.zip",
+        "pkgname": "sss-text-rendering"
     },
     {
         "owner": "Scaly-Sphere-Studio",
-        "repo": "Text-Rendering",
-        "tag": "0.1.0",
-        "filename": "sss-text-rendering.zip",
-        "pkgname": "sss-text-rendering"
+        "repo": "Fps",
+        "tag": "0.2.0",
+        "filename": "sss-fps.zip",
+        "pkgname": "sss-fps"
     },
     {
         "owner": "Scaly-Sphere-Studio",
