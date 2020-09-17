@@ -55,7 +55,7 @@ function Download-Asset
     $local_file = "$dl_dir\$($param.filename)";
     if (Test-Path $local_file) {
         # Target exists, check if up to date
-        $last_write_time = $(Get-Item $local_file | %{$_.LastWriteTime}).ToUniversalTime();
+        $last_write_time = (Get-Item $local_file).LastWriteTime;
         if ($last_write_time -ge $file.updated_at) {
             # Target is up to date, stop there
             Write-Output "$local_file is up to date.";

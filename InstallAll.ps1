@@ -10,9 +10,10 @@ $assets = Get-Content -Path assets.json | ConvertFrom-Json;
 $assets | %{
     # Download
     Download-Asset $_ $token $dl_dir;
-    # 
-    if (Test-Path "$ports_dir\$_.pkgname") {
-        Remove-Item -Force -Recurse "$ports_dir\$_.pkgname";
+    # Remove pkd port dir if present
+    $pkg_dir = "$ports_dir\$($_.pkgname)";
+    if (Test-Path $pkg_dir) {
+        Remove-Item -Force -Recurse $pkg_dir;
     }
     # Unzip
     Expand-Archive -Force -Path $dl_dir\$($_.filename) -DestinationPath $ports_dir;
