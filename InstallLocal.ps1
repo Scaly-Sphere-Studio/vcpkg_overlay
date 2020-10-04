@@ -12,7 +12,6 @@ $ErrorActionPreference = "Stop";
 # Set local variables
 $pkg_dir = "$ports_dir\$pkgname";
 $control_file = "$pkg_dir\CONTROL";
-$control = Get-Content -Path $control_file;
 
 # Remove the old package directory if present
 if (Test-Path $pkg_dir) {
@@ -23,6 +22,7 @@ if (Test-Path $pkg_dir) {
 Expand-Archive -Force -Path $archive_path -DestinationPath $ports_dir;
 
 # Overwrite old CONTROL file with local "Version :"
+$control = Get-Content -Path $control_file;
 $new_control = @();
 $control | %{
     if ($_ -match "Version: ") {
