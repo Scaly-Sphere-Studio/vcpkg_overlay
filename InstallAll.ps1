@@ -1,5 +1,7 @@
 $ErrorActionPreference = "Stop";
 
+git pull;
+
 # Source functions & variables
 . $PSScriptRoot\Functions.ps1;
 
