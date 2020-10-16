@@ -25,3 +25,15 @@ $assets | %{
 $assets | %{
     Pkg-Install $_.pkgname;
 }
+
+# Remove deprecated pkgs
+$all_sss = vcpkg list sss | %{ $_.Split(" ")[0] };
+$new_pkgs = $assets | %{ Pkg-List $_.pkgname };
+$deprecated = Compare-Object -ReferenceObject $all_sss -DifferenceObject $new_pkgs -PassThru;
+if ($deprecated) {
+    vcpkg remove $deprecated;
+    $ports_to_remove $deprecated | %{ $_.Split(":")[0] } | select -Unique;
+    $ports_to_remove | %{
+        Remove-Item -Force -Recurse "$ports_dir/$_";
+    }
+}
