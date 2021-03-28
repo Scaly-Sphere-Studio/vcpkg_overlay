@@ -1,5 +1,9 @@
 $ErrorActionPreference = "Stop";
 
+. $PSScriptRoot\UpgradeVcpkg.ps1;
+
+Write-Output "Pulling this repository ...";
+
 git pull;
 
 # Source functions & variables

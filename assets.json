@@ -15,15 +15,8 @@
     },
     {
         "owner": "Scaly-Sphere-Studio",
-        "repo": "SDL",
-        "tag": "0.6.2",
-        "filename": "sss-sdl.zip",
-        "pkgname": "sss-sdl"
-    },
-    {
-        "owner": "Scaly-Sphere-Studio",
         "repo": "GL",
-        "tag": "0.4.0",
+        "tag": "0.5.0",
         "filename": "sss-gl.zip",
         "pkgname": "sss-gl"
     }
