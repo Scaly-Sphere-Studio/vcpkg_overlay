@@ -2,7 +2,7 @@
     {
         "owner": "Scaly-Sphere-Studio",
         "repo": "Commons",
-        "tag": "0.5.1",
+        "tag": "0.5.2",
         "filename": "sss-commons.zip",
         "pkgname": "sss-commons"
     },
@@ -16,7 +16,7 @@
     {
         "owner": "Scaly-Sphere-Studio",
         "repo": "GL",
-        "tag": "0.5.0",
+        "tag": "0.5.2",
         "filename": "sss-gl.zip",
         "pkgname": "sss-gl"
     }
