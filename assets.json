@@ -9,14 +9,14 @@
     {
         "owner": "Scaly-Sphere-Studio",
         "repo": "Text-Rendering",
-        "tag": "0.6.0",
+        "tag": "0.6.1",
         "filename": "sss-text-rendering.zip",
         "pkgname": "sss-text-rendering"
     },
     {
         "owner": "Scaly-Sphere-Studio",
         "repo": "GL",
-        "tag": "0.6.0",
+        "tag": "0.6.1",
         "filename": "sss-gl.zip",
         "pkgname": "sss-gl"
     }
