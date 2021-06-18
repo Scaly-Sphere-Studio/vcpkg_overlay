@@ -1,16 +1,16 @@
 $ErrorActionPreference = "Stop";
 
+# Upgrade vcpkg
 . $PSScriptRoot\UpgradeVcpkg.ps1;
 
-Write-Output "Pulling this repository ...";
-
-git pull;
+Write-Host "Pulling this repository ...";
+git -C $PSScriptRoot pull;
 
 # Source functions & variables
 . $PSScriptRoot\Functions.ps1;
 
 # Get assets info from JSON
-$assets = Get-Content -Path assets.json | ConvertFrom-Json;
+$assets = Get-Content -Path $PSScriptRoot\assets.json | ConvertFrom-Json;
 
 # Download and unzip all assets
 $assets | %{

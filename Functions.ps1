@@ -47,7 +47,7 @@ function Download-Asset
     # Check if we found the file
     if (!$file) {
         $msg = "Could not find '$($param.filename)' in tag '$($param.tag)' from '$repo'";
-        Write-Error -TargetObject bruh $msg;
+        Write-Error $msg;
         return
     }
 
