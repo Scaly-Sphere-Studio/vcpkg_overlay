@@ -5,5 +5,19 @@
         "tag": "0.5.5",
         "filename": "sss-commons.zip",
         "pkgname": "sss-commons"
+    },
+    {
+        "owner": "Scaly-Sphere-Studio",
+        "repo": "Text-Rendering",
+        "tag": "0.6.5",
+        "filename": "sss-text-rendering.zip",
+        "pkgname": "sss-text-rendering"
+    },
+    {
+        "owner": "Scaly-Sphere-Studio",
+        "repo": "GL",
+        "tag": "0.6.5",
+        "filename": "sss-gl.zip",
+        "pkgname": "sss-gl"
     }
 ]

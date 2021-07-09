@@ -4,7 +4,7 @@ $ErrorActionPreference = "Stop";
 . $PSScriptRoot\UpgradeVcpkg.ps1;
 
 #Write-Host "Pulling this repository ...";
-#git -C $PSScriptRoot pull;
+git -C $PSScriptRoot pull;
 
 # Source functions & variables
 . $PSScriptRoot\Functions.ps1;
