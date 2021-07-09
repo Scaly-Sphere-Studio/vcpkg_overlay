@@ -3,8 +3,8 @@ $ErrorActionPreference = "Stop";
 # Upgrade vcpkg
 . $PSScriptRoot\UpgradeVcpkg.ps1;
 
-Write-Host "Pulling this repository ...";
-git -C $PSScriptRoot pull;
+#Write-Host "Pulling this repository ...";
+#git -C $PSScriptRoot pull;
 
 # Source functions & variables
 . $PSScriptRoot\Functions.ps1;
@@ -12,21 +12,14 @@ git -C $PSScriptRoot pull;
 # Get assets info from JSON
 $assets = Get-Content -Path $PSScriptRoot\assets.json | ConvertFrom-Json;
 
-# Download and unzip all assets
+# Download and unzip sources
 $assets | %{
-    # Download
-    Download-Asset $_ $token $dl_dir;
-    # Remove pkd port dir if present
-    $pkg_dir = "$ports_dir\$($_.pkgname)";
-    if (Test-Path $pkg_dir) {
-        Remove-Item -Force -Recurse $pkg_dir;
-    }
-    # Unzip
-    Expand-Archive -Force -Path $dl_dir\$($_.filename) -DestinationPath $ports_dir;
+    Download-Port $_ $token;
 }
 
-# Install via vcpkg
+# Build via Visual Studio then install via vcpkg
 $assets | %{
+    Build-Port $ports_dir\$($_.pkgname);
     Pkg-Install $_.pkgname;
 }
 

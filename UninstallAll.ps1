@@ -21,7 +21,3 @@ if (!$to_remove) {
 if ($to_remove) {
     vcpkg remove $to_remove;
 }
-
-# Remove the downloads & ports directory
-Remove-Item -Recurse -Force $dl_dir;
-Remove-Item -Recurse -Force $ports_dir;

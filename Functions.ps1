@@ -8,12 +8,11 @@ if (!(Test-Path $ports_dir)) {
     New-Item -Path $ports_dir -ItemType directory | Out-Null
 }
 
-function Download-Asset
+function Download-Port
 {
     param(
         [Parameter()] [object] $param,
-        [Parameter()] [string] $token,
-        [Parameter()] [string] $dl_dir
+        [Parameter()] [string] $token
     );
     $repo = "$($param.owner)/$($param.repo)";
     $base_url = "https://api.github.com/repos/$repo";
@@ -30,7 +29,7 @@ function Download-Asset
     # Get all releases
     $all_releases = (Invoke-WebRequest -Headers $headers "$base_url/releases") | ConvertFrom-Json;
     # Look for corresponding release from tag names
-    $release = $all_releases | %{ if ($_.tag_name -eq $param.tag) { return $_ } };
+    $release = $all_releases | ?{ $_.tag_name -eq $param.tag };
     # Check if release was found
     if (!$release) {
         $msg = "Could not find any release with a tag of '$($param.tag)' from '$repo'";
@@ -38,43 +37,117 @@ function Download-Asset
         return;
     }
 
-    # Look for the file in assets
-    foreach ($asset in $release.assets) {
-        if ($asset.name -eq $param.filename) {
-            $file = $asset;
-        }
-    }
-    # Check if we found the file
-    if (!$file) {
-        $msg = "Could not find '$($param.filename)' in tag '$($param.tag)' from '$repo'";
-        Write-Error $msg;
+    # Download the target
+    New-Item -ItemType Directory -Force tmp | Out-Null;
+    $archive = "tmp\$($param.pkgname).zip";
+    Invoke-WebRequest -Headers $headers -OutFile "$archive" $release.zipball_url -ErrorVariable err;
+    if ($err) {
+        Write-Error "$archive failed to download : $err";
         return
     }
 
-    # Check if the file was previously downloaded, and if it needs an update
-    $local_file = "$dl_dir\$($param.filename)";
-    if (Test-Path $local_file) {
-        # Target exists, check if up to date
-        $last_write_time = (Get-Item $local_file).LastWriteTime;
-        if ($last_write_time -ge $file.updated_at) {
-            # Target is up to date, stop there
-            Write-Output "$local_file is up to date.";
-            return;
-        } else {
-            # Target is outdated
-            Remove-Item $local_file;
-            Write-Output "$local_file is outdated, starting download...";
-        }
-    } else {
-        # Target does not exist
-        Write-Output "$local_file not found, starting download...";
+    # Create port
+    $tmp_dir = "tmp\$($param.pkgname)";
+    Expand-Archive -Path $archive -DestinationPath $tmp_dir;
+    $sources = Resolve-Path "$tmp_dir\*";
+    Create-Port $param.pkgname $param.tag $sources;
+    Remove-Item -Recurse -Force tmp;
+}
+
+function Create-Port {
+    param(
+        [Parameter()] [string] $pkgname,
+        [Parameter()] [string] $tag,
+        [Parameter()] [string] $folder_path
+    );
+
+    # Save previous build if present, or create the folder
+    $port = "$ports_dir\$pkgname";
+    if (Test-Path $port) {
+        $port = Resolve-Path $port;
+        Get-ChildItem -Recurse $port | Select -ExpandProperty FullName `
+            | ?{ $_ -notlike "$port\obj*" } `
+            | ?{ $_ -notlike "$port\Debug*"} `
+            | ?{ $_ -notlike "$port\Release*"} `
+            | ?{ $_ -notlike "$port\x64*"} `
+            | Remove-Item -Recurse -Force;
+    }
+    else {
+        New-Item -ItemType Directory $port;
     }
 
-    # Download the target
-    $headers.Add("Accept", "application/octet-stream");
-    Invoke-WebRequest -Headers $headers -OutFile "$local_file" $file.url -ErrorVariable err;
-    if (!($err)) {
-        Write-Output "$local_file successfully downloaded.";
+    # Copy new sources
+    Copy-Item -Recurse -Force -Path $folder_path/* -Exclude .vs,.git* -Destination $port;
+
+    # Add version to CONTROL file
+    $control = Get-Content -Path $port\CONTROL;
+    $control += "Version: $tag";
+    $control | Out-File $port\CONTROL -Encoding ascii;
+
+    # Copy portfile.cmake
+    Copy-Item -Path $PSScriptRoot\portfile.cmake -Destination $port;
+}
+
+function Build-Port {
+    param(
+        [Parameter()] [string] $path
+    );
+
+    # Project path & name
+    $vcxproj    = Resolve-Path "$path\*.vcxproj";
+    $proj_name  = $vcxproj.ToString().Split('\')[-1].Split('.')[0].ToLower();
+
+    # Visual Studio parameters
+    $vc_dir     = (Get-CimInstance MSFT_VSInstance).InstallLocation;
+    if (!(Test-Path $vc_dir)) {
+        $msg = "Could not find Microsoft Visual Studio.";
+        Write-Error $msg;
+    }
+    $vc_varsall_bat = "$vc_dir\VC\Auxiliary\Build\vcvarsall.bat"
+    $vc_build_cmd   = "devenv $vcxproj /Project $proj_name /Build"
+
+    # List of configs to build
+    $jobs = @(
+        "`"Debug|x86`"",
+        "`"Release|x86`"",
+        "`"Debug|x64`"",
+        "`"Release|x64`""
+    )
+
+    # Build configs in threads
+    $jobs | %{
+        $cmd = "`"$vc_varsall_bat`" x64 >NUL && $vc_build_cmd $_";
+        $script = {
+            param([Parameter()] [string] $arg);
+            CMD /c $arg;
+        }
+        $_ = Start-Job -Name $_ -ScriptBlock $script -ArgumentList $cmd;
+        $_;
+    }
+    Write-Host "";
+
+    # Wait end of all threads
+    Wait-Job $jobs | Out-Null;
+
+    # Format and display outputs
+    $success = 1;
+    $jobs | %{
+        $output = Receive-Job $_;
+        $output;
+        $result = $output.Split("\n")[-1];
+        if ($result -like "*0 failed*") {
+            Write-Host -ForegroundColor green "Build $_ succeeded.";
+        }
+        else {
+            Write-Host -ForegroundColor red "Build $_ failed";
+            $success = 0;
+        }
+        Remove-Job $_;
+    }
+    Write-Host "";
+
+    if (!$success) {
+        Write-Error "One or more build(s) failed.";
     }
 }
 
@@ -104,17 +177,6 @@ function Pkg-List {
     };
 
     return $listed;
-}
-
-function Pkg-Remove {
-    param(
-        [Parameter()] [string] $pkgname
-    );
-
-    $listed = Pkg-List $pkgname;
-    if ($listed) {
-        vcpkg remove $listed;
-    }
 }
 
 function Pkg-Install {
@@ -148,5 +210,16 @@ function Pkg-Install {
         else {
             Write-Error "'$pkgname' could not be installed.`n";
         }
+    }
+}
+
+function Pkg-Remove {
+    param(
+        [Parameter()] [string] $pkgname
+    );
+
+    $listed = Pkg-List $pkgname;
+    if ($listed) {
+        vcpkg remove $listed;
     }
 }

@@ -30,6 +30,3 @@ if (!$to_remove) {
 
 # Remove pkg
 vcpkg remove $to_remove;
-
-# Remove pkg folder
-Remove-Item -Recurse -Force "$ports_dir\$pkgname";
