@@ -19,7 +19,6 @@ $assets | %{
 
 # Build via Visual Studio then install via vcpkg
 $assets | %{
-    Build-Port $ports_dir\$($_.pkgname);
     Pkg-Install $_.pkgname;
 }
 

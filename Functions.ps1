@@ -65,15 +65,10 @@ function Create-Port {
     $port = "$ports_dir\$pkgname";
     if (Test-Path $port) {
         $port = Resolve-Path $port;
-        Get-ChildItem -Recurse $port | Select -ExpandProperty FullName `
-            | ?{ $_ -notlike "$port\obj*" } `
-            | ?{ $_ -notlike "$port\Debug*"} `
-            | ?{ $_ -notlike "$port\Release*"} `
-            | ?{ $_ -notlike "$port\x64*"} `
-            | Remove-Item -Recurse -Force;
+        Remove-Item -Recurse -Force $port/*;
     }
     else {
-        New-Item -ItemType Directory $port;
+        New-Item -ItemType Directory $port | Out-Null;
     }
 
     # Copy new sources
@@ -86,69 +81,6 @@ function Create-Port {
 
     # Copy portfile.cmake
     Copy-Item -Path $PSScriptRoot\portfile.cmake -Destination $port;
-}
-
-function Build-Port {
-    param(
-        [Parameter()] [string] $path
-    );
-
-    # Project path & name
-    $vcxproj    = Resolve-Path "$path\*.vcxproj";
-    $proj_name  = $vcxproj.ToString().Split('\')[-1].Split('.')[0].ToLower();
-
-    # Visual Studio parameters
-    $vc_dir     = (Get-CimInstance MSFT_VSInstance).InstallLocation;
-    if (!(Test-Path $vc_dir)) {
-        $msg = "Could not find Microsoft Visual Studio.";
-        Write-Error $msg;
-    }
-    $vc_varsall_bat = "$vc_dir\VC\Auxiliary\Build\vcvarsall.bat"
-    $vc_build_cmd   = "devenv $vcxproj /Project $proj_name /Build"
-
-    # List of configs to build
-    $jobs = @(
-        "`"Debug|x86`"",
-        "`"Release|x86`"",
-        "`"Debug|x64`"",
-        "`"Release|x64`""
-    )
-
-    # Build configs in threads
-    $jobs | %{
-        $cmd = "`"$vc_varsall_bat`" x64 >NUL && $vc_build_cmd $_";
-        $script = {
-            param([Parameter()] [string] $arg);
-            CMD /c $arg;
-        }
-        $_ = Start-Job -Name $_ -ScriptBlock $script -ArgumentList $cmd;
-        $_;
-    }
-    Write-Host "";
-
-    # Wait end of all threads
-    Wait-Job $jobs | Out-Null;
-
-    # Format and display outputs
-    $success = 1;
-    $jobs | %{
-        $output = Receive-Job $_;
-        $output;
-        $result = $output.Split("\n")[-1];
-        if ($result -like "*0 failed*") {
-            Write-Host -ForegroundColor green "Build $_ succeeded.";
-        }
-        else {
-            Write-Host -ForegroundColor red "Build $_ failed";
-            $success = 0;
-        }
-        Remove-Job $_;
-    }
-    Write-Host "";
-
-    if (!$success) {
-        Write-Error "One or more build(s) failed.";
-    }
 }
 
 function Pkg-Triplets {

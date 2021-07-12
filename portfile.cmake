@@ -1,3 +1,14 @@
+# --- BUILD VIA MSBUILD ---
+
+# Find path to solution
+file(GLOB solution "${CMAKE_CURRENT_LIST_DIR}/*.sln")
+
+# Build solution
+vcpkg_build_msbuild(
+    PROJECT_PATH ${solution}
+    USE_VCPKG_INTEGRATION
+)
+
 # --- FUNCTIONS & VARIABLES ---
 
 # CopyBinary copies the given file to the given folder. Fatal if it does not exist
@@ -21,9 +32,8 @@ else()
 endif()
 
 # Set paths to headers
-set(base_dir "${CMAKE_CURRENT_LIST_DIR}")
-set(inc_dir  "${base_dir}/inc")
-get_filename_component(pkg_name "${base_dir}" NAME)
+set(inc_dir  "${CMAKE_CURRENT_LIST_DIR}/inc")
+get_filename_component(pkg_name "${CMAKE_CURRENT_LIST_DIR}" NAME)
 
 # --- BINARIES ---
 
@@ -31,7 +41,8 @@ get_filename_component(pkg_name "${base_dir}" NAME)
 if (NOT VCPKG_BUILD_TYPE OR VCPKG_BUILD_TYPE STREQUAL "release")
     message(STATUS "Copying release binaries...")
     # Copy binaries
-    set(build_dir "${base_dir}/${arch_dir}/Release")
+    set(build_dir "${CMAKE_CURRENT_LIST_DIR}/${arch_dir}/Release")
+    CopyBinary(${build_dir} "${pkg_name}.pdb" "lib")
     CopyBinary(${build_dir} "${pkg_name}.lib" "lib")
 endif()
 
@@ -39,8 +50,9 @@ endif()
 if (NOT VCPKG_BUILD_TYPE OR VCPKG_BUILD_TYPE STREQUAL "debug")
     message(STATUS "Copying debug binaries...")
     # Copy binaries
-    set(build_dir "${base_dir}/${arch_dir}/Debug")
+    set(build_dir "${CMAKE_CURRENT_LIST_DIR}/${arch_dir}/Debug")
     CopyBinary(${build_dir} "${pkg_name}.lib" "debug/lib")
+    CopyBinary(${build_dir} "${pkg_name}.pdb" "debug/lib")
 endif()
 
 # --- HEADERS ---
