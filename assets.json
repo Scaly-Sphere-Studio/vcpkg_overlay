@@ -2,21 +2,21 @@
     {
         "owner": "Scaly-Sphere-Studio",
         "repo": "Commons",
-        "tag": "0.6.1",
+        "tag": "0.6.2",
         "filename": "sss-commons.zip",
         "pkgname": "sss-commons"
     },
     {
         "owner": "Scaly-Sphere-Studio",
         "repo": "Text-Rendering",
-        "tag": "0.7.0",
+        "tag": "0.7.1",
         "filename": "sss-text-rendering.zip",
         "pkgname": "sss-text-rendering"
     },
     {
         "owner": "Scaly-Sphere-Studio",
         "repo": "GL",
-        "tag": "0.8.1",
+        "tag": "0.8.2",
         "filename": "sss-gl.zip",
         "pkgname": "sss-gl"
     }
