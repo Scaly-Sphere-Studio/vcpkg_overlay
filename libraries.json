@@ -1,0 +1,26 @@
+[
+    {
+        "repo_owner": "Scaly-Sphere-Studio",
+        "repo_name": "Commons",
+        "version_tag": "latest",
+        "vcpkg_name": "sss-commons"
+    },
+    {
+        "repo_owner": "Scaly-Sphere-Studio",
+        "repo_name": "Text-Rendering",
+        "version_tag": "latest",
+        "vcpkg_name": "sss-text-rendering"
+    },
+    {
+        "repo_owner": "Scaly-Sphere-Studio",
+        "repo_name": "GL",
+        "version_tag": "latest",
+        "vcpkg_name": "sss-gl"
+    },
+    {
+        "repo_owner": "Scaly-Sphere-Studio",
+        "repo_name": "ImGuiH",
+        "version_tag": "latest",
+        "vcpkg_name": "sss-imguih"
+    }
+]
