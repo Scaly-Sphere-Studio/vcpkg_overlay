@@ -39,7 +39,7 @@ function Download-Port
     # Look for corresponding release from tag names
     $release = $all_releases | ?{ $_.tag_name -eq $param.version_tag };
     # Check if release was found, and if "latest" was requested
-    if ($param.version_tag -eq "latest" || !$release) {
+    if (($param.version_tag -eq "latest") -or !$release) {
         try {
             $release = (Invoke-WebRequest -Headers $headers "$base_url/releases/latest") | ConvertFrom-Json;
         }

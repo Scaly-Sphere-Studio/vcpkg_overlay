@@ -1,10 +1,13 @@
 $ErrorActionPreference = "Stop";
 
 # Upgrade vcpkg
-#. $PSScriptRoot\UpgradeVcpkg.ps1;
+. $PSScriptRoot\UpgradeVcpkg.ps1;
+
+# Ignore libraries.json changes
+git update-index --assume-unchanged Libraries.json;
 
 #Write-Host "Pulling this repository ...";
-#git -C $PSScriptRoot pull;
+git -C $PSScriptRoot pull;
 
 # Source functions & variables
 . $PSScriptRoot\internal\Functions.ps1;
