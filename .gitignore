@@ -1,7 +1,9 @@
 *.zip
+*.lnk
 .vs/
 downloads/
 ports/
+doxygen/
 
 # Prerequisites
 *.d
