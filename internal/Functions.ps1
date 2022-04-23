@@ -65,7 +65,7 @@ function Download-Port
     $archives_output = "$tmp_dir\$($param.vcpkg_name)";
     Expand-Archive -Path $archive -DestinationPath $archives_output;
     $sources = Resolve-Path "$archives_output\*";
-    Create-Port $param.vcpkg_name $param.version_tag $sources;
+    Create-Port $param.vcpkg_name $release.tag_name $sources;
     Remove-Item -Recurse -Force $tmp_dir;
 }
 

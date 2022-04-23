@@ -4,7 +4,7 @@ $ErrorActionPreference = "Stop";
 . $PSScriptRoot\UpgradeVcpkg.ps1;
 
 # Ignore libraries.json changes
-git update-index --assume-unchanged Libraries.json;
+git -C $PSScriptRoot update-index --assume-unchanged Libraries.json;
 
 #Write-Host "Pulling this repository ...";
 git -C $PSScriptRoot pull;
