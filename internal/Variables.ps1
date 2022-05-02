@@ -1,5 +1,5 @@
 $token = $env:SSS_READ_TOKEN;
-$base_dir = "$PSScriptRoot\..";
+$base_dir = Resolve-Path "$PSScriptRoot\..";
 $dl_dir = "$base_dir\downloads";
 $ports_dir = "$base_dir\ports";
 $portfile = "$PSScriptRoot\portfile.cmake";

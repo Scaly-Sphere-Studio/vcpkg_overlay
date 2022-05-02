@@ -54,8 +54,8 @@ function Download-Port
     $tmp_dir = "$base_dir\tmp";
     New-Item -ItemType Directory -Force $tmp_dir | Out-Null;
     $archive = "$tmp_dir\$($param.vcpkg_name).zip";
-    $ProgressPreference = 'SilentlyContinue';
     Write-Output "Downloading $archive ...";
+    $ProgressPreference = 'SilentlyContinue';
     Invoke-WebRequest -Headers $headers -OutFile "$archive" $release.zipball_url -ErrorVariable err;
     $ProgressPreference = 'Continue';
     if ($err) {
@@ -103,20 +103,21 @@ function Create-Port {
 
 function Pkg-Triplets {
     param(
-        [Parameter()] [string] $vcpkg_name
+        [Parameter()] [string[]] $vcpkg_name
     );
 
-    $pkgs = @(
-        "$($vcpkg_name):x86-windows",
-        "$($vcpkg_name):x64-windows"
-    );
+    $pkgs = @();
+    $vcpkg_name | %{
+        $pkgs += "$($_):x86-windows";
+        $pkgs += "$($_):x64-windows";
+    }
 
     return $pkgs;
 }
 
 function Pkg-List {
     param(
-        [Parameter()] [string] $vcpkg_name
+        [Parameter()] [string[]] $vcpkg_name
     );
 
     $listed = @();
@@ -131,7 +132,7 @@ function Pkg-List {
 
 function Pkg-Install {
     param(
-        [Parameter()] [string] $vcpkg_name
+        [Parameter()] [string[]] $vcpkg_name
     );
 
     $pkg = $(Pkg-Triplets $vcpkg_name);
@@ -146,26 +147,11 @@ function Pkg-Install {
     if ($not_listed) {
         vcpkg install $not_listed.Split(" ");
     }
-
-    # Log output
-    $installed = Pkg-List $vcpkg_name;
-    $not_installed = Compare-Object -ReferenceObject "$pkg" -DifferenceObject "$installed" -PassThru;
-    if (!($not_installed)) {
-        Write-Output "'$vcpkg_name' successfully installed.`n";
-    }
-    else {
-        if ($installed) {
-            Write-Error "'$vcpkg_name' could only be partially installed.`n";
-        }
-        else {
-            Write-Error "'$vcpkg_name' could not be installed.`n";
-        }
-    }
 }
 
 function Pkg-Remove {
     param(
-        [Parameter()] [string] $vcpkg_name
+        [Parameter()] [string[]] $vcpkg_name
     );
 
     $listed = Pkg-List $vcpkg_name;

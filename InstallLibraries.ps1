@@ -2,11 +2,12 @@ $ErrorActionPreference = "Stop";
 
 # Upgrade vcpkg
 . $PSScriptRoot\UpgradeVcpkg.ps1;
+Write-Output "";
 
 # Ignore libraries.json changes
 git -C $PSScriptRoot update-index --assume-unchanged Libraries.json;
-
-#Write-Host "Pulling this repository ...";
+# Pull repo
+Write-Host "Pulling this repository ...";
 git -C $PSScriptRoot pull;
 
 # Source functions & variables
@@ -19,11 +20,10 @@ $libraries = Get-Content -Path $libraries_file | ConvertFrom-Json;
 $libraries | %{
     Download-Port $_ $token;
 }
+Write-Output "";
 
 # Build via Visual Studio then install via vcpkg
-$libraries | %{
-    Pkg-Install $_.vcpkg_name;
-}
+Pkg-Install $($libraries | %{ $_.vcpkg_name });
 
 # Remove no longer used pkgs
 $all_sss = vcpkg list sss | %{ $_.Split(" ")[0] };
