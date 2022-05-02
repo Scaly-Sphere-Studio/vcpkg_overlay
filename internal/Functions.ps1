@@ -54,7 +54,10 @@ function Download-Port
     $tmp_dir = "$base_dir\tmp";
     New-Item -ItemType Directory -Force $tmp_dir | Out-Null;
     $archive = "$tmp_dir\$($param.vcpkg_name).zip";
+    $ProgressPreference = 'SilentlyContinue';
+    Write-Output "Downloading $archive ...";
     Invoke-WebRequest -Headers $headers -OutFile "$archive" $release.zipball_url -ErrorVariable err;
+    $ProgressPreference = 'Continue';
     if ($err) {
         Remove-Item -Recurse -Force $tmp_dir;
         Write-Error "$archive failed to download: $err";
