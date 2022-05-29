@@ -1,9 +1,7 @@
 . $PSScriptRoot\Variables.ps1;
+$ErrorActionPreference = "Stop";
 
 # Create directories if needed
-if (!(Test-Path $dl_dir)) {
-    New-Item -Path $dl_dir -ItemType directory | Out-Null
-}
 if (!(Test-Path $ports_dir)) {
     New-Item -Path $ports_dir -ItemType directory | Out-Null
 }
@@ -16,12 +14,12 @@ function Download-Port
     );
     $repo_full = "$($param.repo_owner)/$($param.repo_name)";
     $base_url = "https://api.github.com/repos/$repo_full";
-    $headers = @{"Authorization" = "token $token"};
+    $headers = "Authorization: token $token";
 
     # Check if we can access the repo
-    try { Invoke-WebRequest -Headers $headers $base_url | Out-Null }
-    catch {
-        $msg = "Could not access '$repo_full': " + ($_ | ConvertFrom-Json).message;
+    $http_code = curl -s -io /dev/null -H $headers $base_url -w "%{http_code}";
+    if ($http_code -ne 200) {
+        $msg = "Could not access '$repo_full': Returned " + $http_code;
         Write-Error $msg;
         return;
     }
@@ -29,7 +27,7 @@ function Download-Port
     # Get all releases
     $all_releases;
     try {
-        $all_releases = (Invoke-WebRequest -Headers $headers "$base_url/releases") | ConvertFrom-Json;
+        $all_releases = (curl -s -H $headers "$base_url/releases") | ConvertFrom-Json;
     }
     catch {
         $msg = "No release for repo '$repo_full'";
@@ -41,7 +39,7 @@ function Download-Port
     # Check if release was found, and if "latest" was requested
     if (($param.version_tag -eq "latest") -or !$release) {
         try {
-            $release = (Invoke-WebRequest -Headers $headers "$base_url/releases/latest") | ConvertFrom-Json;
+            $release = (curl -s -H $headers "$base_url/releases/latest") | ConvertFrom-Json;
         }
         catch {
             $msg = "No 'latest' release for repo '$repo_full'";
@@ -51,12 +49,11 @@ function Download-Port
     }
 
     # Download the target
-    $tmp_dir = "$base_dir\tmp";
     New-Item -ItemType Directory -Force $tmp_dir | Out-Null;
     $archive = "$tmp_dir\$($param.vcpkg_name).zip";
-    Write-Output "Downloading $archive ...";
+    Write-Host "Downloading $archive ...";
     $ProgressPreference = 'SilentlyContinue';
-    Invoke-WebRequest -Headers $headers -OutFile "$archive" $release.zipball_url -ErrorVariable err;
+    curl -s -H $headers -o "$archive" -L $release.zipball_url;
     $ProgressPreference = 'Continue';
     if ($err) {
         Remove-Item -Recurse -Force $tmp_dir;
