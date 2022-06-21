@@ -1,10 +1,8 @@
 $ErrorActionPreference = "Stop";
 
-# Ignore libraries.json changes
-git -C $PSScriptRoot update-index --assume-unchanged Libraries.json;
 # Pull repo
 Write-Host "> Pulling this repository ...";
-git -C $PSScriptRoot pull;
+git -C $PSScriptRoot pull --force;
 Write-Host "";
 
 # Source functions & variables
