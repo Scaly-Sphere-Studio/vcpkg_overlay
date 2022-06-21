@@ -22,5 +22,11 @@
         "repo_name": "ImGuiH",
         "version_tag": "latest",
         "vcpkg_name": "sss-imguih"
+    },
+    {
+        "repo_owner": "Scaly-Sphere-Studio",
+        "repo_name": "Audio",
+        "version_tag": "latest",
+        "vcpkg_name": "sss-audio"
     }
 ]
