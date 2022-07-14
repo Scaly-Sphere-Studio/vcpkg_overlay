@@ -31,12 +31,6 @@
     },
     {
         "repo_owner": "Scaly-Sphere-Studio",
-        "repo_name": "Line",
-        "version_tag": "latest",
-        "vcpkg_name": "sss-line"
-    },
-    {
-        "repo_owner": "Scaly-Sphere-Studio",
         "repo_name": "Audio",
         "version_tag": "latest",
         "vcpkg_name": "sss-audio"
