@@ -1,6 +1,12 @@
 [
     {
         "repo_owner": "Scaly-Sphere-Studio",
+        "repo_name": "Math",
+        "version_tag": "latest",
+        "vcpkg_name": "sss-math"
+    },
+    {
+        "repo_owner": "Scaly-Sphere-Studio",
         "repo_name": "Commons",
         "version_tag": "latest",
         "vcpkg_name": "sss-commons"
