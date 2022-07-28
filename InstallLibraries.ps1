@@ -8,10 +8,6 @@ Write-Host "";
 # Source functions & variables
 . $PSScriptRoot\internal\Functions.ps1;
 
-# Upgrade vcpkg
-. $base_dir\UpgradeVcpkg.ps1;
-Write-Host "";
-
 # Get libraries info from JSON
 $libraries = Get-Content -Path $libraries_file | ConvertFrom-Json;
 
@@ -20,6 +16,10 @@ Write-Host "> Downloading sources ..."
 $libraries | %{
     Download-Port $_ $token;
 }
+Write-Host "";
+
+# Upgrade vcpkg
+. $base_dir\UpgradeVcpkg.ps1;
 Write-Host "";
 
 # Build via Visual Studio then install via vcpkg
