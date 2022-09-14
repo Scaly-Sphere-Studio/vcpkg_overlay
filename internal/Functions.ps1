@@ -90,9 +90,12 @@ function Create-Port {
     Copy-Item -Recurse -Force -Path $folder_path/* -Exclude .vs,.git* -Destination $port;
 
     # Add version to CONTROL file
-    $control = Get-Content -Path $port\CONTROL;
-    $control += "Version: $tag";
-    $control | Out-File $port\CONTROL -Encoding ascii;
+    $control = "$port\CONTROL";
+    $control_tmp = "$control.tmp";
+    "Version: $tag" | Out-File $control_tmp -Encoding ascii;
+    Add-Content -Path $control_tmp -Value (Get-Content -Path $control);
+    rm $control;
+    mv $control_tmp $control;
 
     # Copy portfile.cmake
     Copy-Item -Path $PSScriptRoot\portfile.cmake -Destination $port;
@@ -142,7 +145,7 @@ function Pkg-Install {
     }
     # Install non installed versions
     if ($not_listed) {
-        vcpkg install $not_listed.Split(" ");
+        vcpkg install --recurse $not_listed.Split(" ");
     }
 }
 
