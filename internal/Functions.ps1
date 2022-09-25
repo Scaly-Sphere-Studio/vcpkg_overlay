@@ -9,8 +9,8 @@ if (!(Test-Path $ports_dir)) {
 function Download-Port
 {
     param(
-        [Parameter()] [object] $param,
-        [Parameter()] [string] $token
+        [Parameter(Mandatory)] [object] $param,
+        [Parameter(Mandatory)] [string] $token
     );
     $repo_full = "$($param.repo_owner)/$($param.repo_name)";
     $base_url = "https://api.github.com/repos/$repo_full";
@@ -71,9 +71,9 @@ function Download-Port
 
 function Create-Port {
     param(
-        [Parameter()] [string] $vcpkg_name,
-        [Parameter()] [string] $tag,
-        [Parameter()] [string] $folder_path
+        [Parameter(Mandatory)] [string] $vcpkg_name,
+        [Parameter(Mandatory)] [string] $tag,
+        [Parameter(Mandatory)] [string] $folder_path
     );
 
     # Save previous build if present, or create the folder
@@ -103,7 +103,7 @@ function Create-Port {
 
 function Pkg-Triplets {
     param(
-        [Parameter()] [string[]] $vcpkg_name
+       [Parameter(Mandatory, ValueFromRemainingArguments)] [string[]] $vcpkg_name
     );
 
     $pkgs = @();
@@ -117,7 +117,7 @@ function Pkg-Triplets {
 
 function Pkg-List {
     param(
-        [Parameter()] [string[]] $vcpkg_name
+        [Parameter(Mandatory, ValueFromRemainingArguments)] [string[]] $vcpkg_name
     );
 
     $listed = @();
@@ -132,7 +132,7 @@ function Pkg-List {
 
 function Pkg-Install {
     param(
-        [Parameter()] [string[]] $vcpkg_name
+        [Parameter(Mandatory, ValueFromRemainingArguments)] [string[]] $vcpkg_name
     );
 
     $pkg = $(Pkg-Triplets $vcpkg_name);
@@ -151,7 +151,7 @@ function Pkg-Install {
 
 function Pkg-Remove {
     param(
-        [Parameter()] [string[]] $vcpkg_name
+        [Parameter(Mandatory, ValueFromRemainingArguments)] [string[]] $vcpkg_name
     );
 
     $listed = Pkg-List $vcpkg_name;
