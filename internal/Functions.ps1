@@ -14,10 +14,10 @@ function Download-Port
     );
     $repo_full = "$($param.repo_owner)/$($param.repo_name)";
     $base_url = "https://api.github.com/repos/$repo_full";
-    $headers = "Authorization: token $token";
+    $headers = @{"Authorization" = "token $token"};
 
     # Check if we can access the repo
-    $http_code = curl -s -io /dev/null -H $headers $base_url -w "%{http_code}";
+    $http_code = (Invoke-WebRequest -Uri $base_url -Headers $headers).StatusCode;
     if ($http_code -ne 200) {
         $msg = "Could not access '$repo_full': Returned " + $http_code;
         Write-Error $msg;
@@ -27,7 +27,7 @@ function Download-Port
     # Get all releases
     $all_releases;
     try {
-        $all_releases = (curl -s -H $headers "$base_url/releases") | ConvertFrom-Json;
+        $all_releases = (Invoke-WebRequest -Uri $base_url/releases -Headers $headers) | ConvertFrom-Json;
     }
     catch {
         $msg = "No release for repo '$repo_full'";
@@ -39,7 +39,7 @@ function Download-Port
     # Check if release was found, and if "latest" was requested
     if (($param.version_tag -eq "latest") -or !$release) {
         try {
-            $release = (curl -s -H $headers "$base_url/releases/latest") | ConvertFrom-Json;
+            $release = (Invoke-WebRequest -Uri $base_url/releases/latest -Headers $headers) | ConvertFrom-Json;
         }
         catch {
             $msg = "No 'latest' release for repo '$repo_full'";
@@ -53,7 +53,7 @@ function Download-Port
     $archive = "$tmp_dir\$($param.vcpkg_name).zip";
     Write-Host "Downloading $archive ...";
     $ProgressPreference = 'SilentlyContinue';
-    curl -s -H $headers -o "$archive" -L $release.zipball_url;
+    Invoke-WebRequest -Uri $release.zipball_url -Headers $headers -OutFile $archive
     $ProgressPreference = 'Continue';
     if ($err) {
         Remove-Item -Recurse -Force $tmp_dir;
@@ -122,7 +122,8 @@ function Pkg-List {
 
     $listed = @();
     Pkg-Triplets $vcpkg_name | foreach {
-        if (vcpkg list $_) {
+        $ret = vcpkg list $_
+        if ($ret -contains $_) {
             $listed += $_;
         }
     };
