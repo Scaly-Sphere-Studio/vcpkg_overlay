@@ -107,7 +107,7 @@ function Pkg-Triplets {
     );
 
     $pkgs = @();
-    $vcpkg_name | %{
+    $vcpkg_name.Split(" ") | %{
         $pkgs += "$($_):x86-windows";
         $pkgs += "$($_):x64-windows";
     }
@@ -121,8 +121,8 @@ function Pkg-List {
     );
 
     $listed = @();
-    Pkg-Triplets $vcpkg_name | foreach {
-        $ret = vcpkg list $_
+    Pkg-Triplets $vcpkg_name.Split(" ") | % {
+        $ret = vcpkg list $_;
         if ($ret -contains $_) {
             $listed += $_;
         }
@@ -136,7 +136,7 @@ function Pkg-Install {
         [Parameter(Mandatory, ValueFromRemainingArguments)] [string[]] $vcpkg_name
     );
 
-    $pkg = $(Pkg-Triplets $vcpkg_name);
+    $pkg = Pkg-Triplets $vcpkg_name;
 
     $listed = Pkg-List $vcpkg_name;
     $not_listed = Compare-Object -ReferenceObject "$pkg" -DifferenceObject "$listed" -PassThru;
