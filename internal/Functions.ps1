@@ -119,9 +119,9 @@ function Pkg-List {
     param(
         [Parameter(Mandatory, ValueFromRemainingArguments)] [string[]] $vcpkg_name
     );
-
     $listed = @();
-    Pkg-Triplets $vcpkg_name.Split(" ") | % {
+    Pkg-Triplets $vcpkg_name | % {
+        $_;
         $ret = vcpkg list $_;
         if ($ret -contains $_) {
             $listed += $_;
