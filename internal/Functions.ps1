@@ -87,7 +87,7 @@ function Create-Port {
     }
 
     # Copy new sources
-    Copy-Item -Recurse -Force -Path $folder_path/* -Exclude .vs,.git* -Destination $port;
+    Copy-Item -Recurse -Force -Path $folder_path/* -Exclude .vs,.git*,Release,Debug,x64,obj -Destination $port;
 
     # Add version to CONTROL file
     $control = "$port\CONTROL";
@@ -121,13 +121,11 @@ function Pkg-List {
     );
     $listed = @();
     Pkg-Triplets $vcpkg_name | % {
-        $_;
         $ret = vcpkg list $_;
-        if ($ret -contains $_) {
+        if ((-not ([string]::IsNullOrEmpty($ret))) -and ($ret.Contains($_))) {
             $listed += $_;
         }
     };
-
     return $listed;
 }
 
@@ -139,14 +137,19 @@ function Pkg-Install {
     $pkg = Pkg-Triplets $vcpkg_name;
 
     $listed = Pkg-List $vcpkg_name;
-    $not_listed = Compare-Object -ReferenceObject "$pkg" -DifferenceObject "$listed" -PassThru;
+    if ($listed) {
+        $not_listed = Compare-Object -ReferenceObject $pkg -DifferenceObject $listed -PassThru;
+    }
+    else {
+        $not_listed = $pkg;
+    }
     # Upgrade old installed versions
     if ($listed) {
         vcpkg upgrade --no-dry-run $listed;
     }
     # Install non installed versions
     if ($not_listed) {
-        vcpkg install --recurse $not_listed.Split(" ");
+        vcpkg install --recurse $not_listed;
     }
 }
 
