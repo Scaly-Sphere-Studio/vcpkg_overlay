@@ -17,12 +17,19 @@ vcpkg_install_msbuild(
     INCLUDES_SUBPATH inc
     PLATFORM ${VCPKG_TARGET_ARCHITECTURE}
     USE_VCPKG_INTEGRATION
+    ALLOW_ROOT_INCLUDES
     OPTIONS
         ${options}
 )
 vcpkg_copy_pdbs()
 
+# Move includes to SSS subdirectory
+file(RENAME "${CURRENT_PACKAGES_DIR}/include" "${CURRENT_PACKAGES_DIR}/include_tmp")
+file(MAKE_DIRECTORY "${CURRENT_PACKAGES_DIR}/include")
+file(RENAME "${CURRENT_PACKAGES_DIR}/include_tmp" "${CURRENT_PACKAGES_DIR}/include/SSS")
+
 # --- COPYRIGHT ---
+
 
 message(STATUS "Writing copyright")
 # Create share folder
