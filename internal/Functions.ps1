@@ -24,27 +24,37 @@ function Download-Port
         return;
     }
     
-    # Get all releases
-    $all_releases;
-    try {
-        $all_releases = (Invoke-WebRequest -Uri $base_url/releases -Headers $headers) | ConvertFrom-Json;
+    # Get sources from either main head or specific release
+    $zipball_url, $vcpkg_tag
+    if (!$param.release_tag) {
+        $zipball_url = "$base_url/zipball"
+        $vcpkg_tag = "HEAD_"+(Invoke-WebRequest -Uri $base_url/commits/HEAD | ConvertFrom-Json).sha.subString(0, 8)
     }
-    catch {
-        $msg = "No release for repo '$repo_full'";
-        Write-Error $msg;
-        return;
-    }
-    # Look for corresponding release from tag names
-    $release = $all_releases | ?{ $_.tag_name -eq $param.version_tag };
-    # Check if release was found, and if "latest" was requested
-    if (($param.version_tag -eq "latest") -or !$release) {
+    else {
+        # Get all releases
+        $all_releases;
         try {
-            $release = (Invoke-WebRequest -Uri $base_url/releases/latest -Headers $headers) | ConvertFrom-Json;
+            $all_releases = (Invoke-WebRequest -Uri $base_url/releases -Headers $headers) | ConvertFrom-Json;
         }
         catch {
-            $msg = "No 'latest' release for repo '$repo_full'";
+            $msg = "No release for repo '$repo_full'";
             Write-Error $msg;
             return;
+        }
+        # Look for corresponding release from tag names
+        $release = $all_releases | ?{ $_.tag_name -eq $param.release_tag };
+        # Check if release was found, and if "latest" was requested
+        if (($param.release_tag -eq "latest") -or !$release) {
+            try {
+                $release = (Invoke-WebRequest -Uri $base_url/releases/latest -Headers $headers) | ConvertFrom-Json;
+                $zipball_url = $release.zipball_url
+                $vcpkg_tag=$release.tag_name
+            }
+            catch {
+                $msg = "No 'latest' release for repo '$repo_full'";
+                Write-Error $msg;
+                return;
+            }
         }
     }
 
@@ -53,7 +63,7 @@ function Download-Port
     $archive = "$tmp_dir\$($param.vcpkg_name).zip";
     Write-Host "Downloading $archive ...";
     $ProgressPreference = 'SilentlyContinue';
-    Invoke-WebRequest -Uri $release.zipball_url -Headers $headers -OutFile $archive
+    Invoke-WebRequest -Uri $zipball_url -Headers $headers -OutFile $archive
     $ProgressPreference = 'Continue';
     if ($err) {
         Remove-Item -Recurse -Force $tmp_dir;
@@ -65,7 +75,7 @@ function Download-Port
     $archives_output = "$tmp_dir\$($param.vcpkg_name)";
     Expand-Archive -Path $archive -DestinationPath $archives_output;
     $sources = Resolve-Path "$archives_output\*";
-    Create-Port $param.vcpkg_name $release.tag_name $sources;
+    Create-Port $param.vcpkg_name $vcpkg_tag $sources;
     Remove-Item -Recurse -Force $tmp_dir;
 }
 

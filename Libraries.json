@@ -2,37 +2,37 @@
     {
         "repo_owner": "Scaly-Sphere-Studio",
         "repo_name": "Math",
-        "version_tag": "latest",
+        //"release_tag": "latest",
         "vcpkg_name": "sss-math"
     },
     {
         "repo_owner": "Scaly-Sphere-Studio",
         "repo_name": "Commons",
-        "version_tag": "latest",
+        //"release_tag": "latest",
         "vcpkg_name": "sss-commons"
     },
     {
         "repo_owner": "Scaly-Sphere-Studio",
         "repo_name": "Text-Rendering",
-        "version_tag": "latest",
+        //"release_tag": "latest",
         "vcpkg_name": "sss-text-rendering"
     },
     {
         "repo_owner": "Scaly-Sphere-Studio",
         "repo_name": "GL",
-        "version_tag": "latest",
+        //"release_tag": "latest",
         "vcpkg_name": "sss-gl"
     },
     {
         "repo_owner": "Scaly-Sphere-Studio",
         "repo_name": "ImGuiH",
-        "version_tag": "latest",
+        //"release_tag": "latest",
         "vcpkg_name": "sss-imguih"
     },
     {
         "repo_owner": "Scaly-Sphere-Studio",
         "repo_name": "Audio",
-        "version_tag": "latest",
+        //"release_tag": "latest",
         "vcpkg_name": "sss-audio"
     }
 ]
